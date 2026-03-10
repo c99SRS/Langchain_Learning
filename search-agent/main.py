@@ -36,17 +36,24 @@ agent = create_agent(model=llm, tools=tools)
 
 def main():
     print("Hello, I am the agent...")
-    question = "What is the weather in Tokyo?"
+    #question="Search for 3 job posting for an AI engineer using langchain in the Bengaluru are on LInkedIn. List their details"
+    question = (
+    "Use the `search` tool to find 3 job postings for an AI engineer using LangChain "
+    "in the Bangalore area on LinkedIn. Then list the job title, company, and location for each."
+    )
+    #print("Question:", repr(question))
+    #result = agent.invoke({"messages": [HumanMessage(content="Search for 3 job posting for an AI engineer using langchain in the Bengaluru are on LInkedIn")]})
     result = agent.invoke({"messages": [HumanMessage(content=question)]})
+    print(result)
 
     # `create_agent` returns a dict with a messages list; print only the final answer
-    messages = result.get("messages", [])
-    if messages:
-        final_message = messages[-1]
-        print(final_message.content)
-    else:
-        # Fallback in case the structure is different
-        print(result)
+    # messages = result.get("messages", [])
+    # if messages:
+    #     final_message = messages[-1]
+    #     print(final_message.content)
+    # else:
+    #     # Fallback in case the structure is different
+    #     print(result)
 
 
 if __name__ == "__main__":
