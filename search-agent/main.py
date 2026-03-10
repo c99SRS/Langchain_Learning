@@ -8,15 +8,15 @@ from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
-from tavily import TavilyClient
+from langchain_tavily import TavilySearch
 
-tavily=TavilyClient()
 
-@tool
-def search(query: str) -> str:
-    """Search for information about the given query and return a short answer."""
-    print(f"Searching for: {query}")
-    return  tavily.search(query=query)  #"Tokyo weather is sunny"
+
+# @tool
+# def search(query: str) -> str:
+#     """Search for information about the given query and return a short answer."""
+#     print(f"Searching for: {query}")
+#     return  tavily.search(query=query)  #"Tokyo weather is sunny"
 
 
 # Use a local Ollama model that supports tools (function calling)
@@ -25,17 +25,23 @@ def search(query: str) -> str:
 
 
 llm = ChatGroq(model="openai/gpt-oss-120b")
-tools = [search]
+
+# Instantiate the tool
+tavily_tool = TavilySearch()  # you can pass options here if you like
+tools = [tavily_tool]  #[search]
 agent = create_agent(model=llm, tools=tools)
 
 #print(llm.invoke("Hello!").content)
-
 #llm = ChatOllama(model="qwen3", temperature=0)
 
 
 
 def main():
     print("Hello, I am the agent...")
+    #Passing below commented question gives error output, bcoz tool is trying to open another toold and it is failing
+    # For the longer prompt (“…on LinkedIn. List their details”), the model decides it needs to:
+    # Search, then “Open” individual job URLs to read details.
+    # Since there is no open tool in your tools list, Groq validates the tool call and responds with a 400 error.
     #question="Search for 3 job posting for an AI engineer using langchain in the Bengaluru are on LInkedIn. List their details"
     question = (
     "Use the `search` tool to find 3 job postings for an AI engineer using LangChain "
