@@ -8,12 +8,15 @@ from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
+from tavily import TavilyClient
+
+tavily=TavilyClient()
 
 @tool
 def search(query: str) -> str:
     """Search for information about the given query and return a short answer."""
     print(f"Searching for: {query}")
-    return "Tokyo weather is sunny"
+    return  tavily.search(query=query)  #"Tokyo weather is sunny"
 
 
 # Use a local Ollama model that supports tools (function calling)
@@ -32,6 +35,7 @@ agent = create_agent(model=llm, tools=tools)
 
 
 def main():
+    print("Hello, I am the agent...")
     question = "What is the weather in Tokyo?"
     result = agent.invoke({"messages": [HumanMessage(content=question)]})
 
