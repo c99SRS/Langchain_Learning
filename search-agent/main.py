@@ -2,6 +2,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from typing import List
+from pydantic import BaseModel, Field
+
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
@@ -24,12 +27,21 @@ from langchain_tavily import TavilySearch
 #llm = ChatOllama(model="gemma3:270m", temperature=0)
 
 
+class Source(BaseModel):
+    """ Schema for a source used by the agent """
+    url:str = Field(description="The URL of the source")
+
+class AgentResponse(BaseModel):
+    """Schema for agent response with answer and sources"""
+    answer:str = Field(description="The agent's answer to the query")
+    sources: List[Source] = Field(default_factory=list, description="List of sources to generate answers")
+
 llm = ChatGroq(model="openai/gpt-oss-120b")
 
 # Instantiate the tool
 tavily_tool = TavilySearch()  # you can pass options here if you like
 tools = [tavily_tool]  #[search]
-agent = create_agent(model=llm, tools=tools)
+agent = create_agent(model=llm, tools=tools, response_format=AgentResponse)
 
 #print(llm.invoke("Hello!").content)
 #llm = ChatOllama(model="qwen3", temperature=0)
@@ -44,12 +56,12 @@ def main():
     # Since there is no open tool in your tools list, Groq validates the tool call and responds with a 400 error.
     #question="Search for 3 job posting for an AI engineer using langchain in the Bengaluru are on LInkedIn. List their details"
     question = (
-    "Use the `search` tool to find 3 job postings for an AI engineer using LangChain "
-    "in the Bangalore area on LinkedIn. Then list the job title, company, and location for each."
+    "search to find 3 job postings for an AI engineer using LangChain "
+    "in the Bangalore area on LinkedIn."
     )
     #print("Question:", repr(question))
-    #result = agent.invoke({"messages": [HumanMessage(content="Search for 3 job posting for an AI engineer using langchain in the Bengaluru are on LInkedIn")]})
-    result = agent.invoke({"messages": [HumanMessage(content=question)]})
+    result = agent.invoke({"messages": [HumanMessage(content="Search for 3 job posting for an AI engineer using langchain in the Bengaluru are on LInkedIn")]})
+    #result = agent.invoke({"messages": [HumanMessage(content=question)]})
     print(result)
 
     # `create_agent` returns a dict with a messages list; print only the final answer
